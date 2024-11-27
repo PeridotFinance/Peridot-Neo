@@ -1,0 +1,4 @@
+module.exports = {
+  PeridotFFTHelper: "0x81C0533c8132Bc20c3A53f599925AB01c7dA2B3A",
+  PeridotMiniNFTHelper: "0x1FB287E1c4F7B4c6b511f4d190523814593Ad84e",
+};
