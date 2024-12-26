@@ -1,0 +1,5 @@
+@use "../../../styles/variables";
+
+.container {
+	z-index: variables.$z-index-particles;
+}
