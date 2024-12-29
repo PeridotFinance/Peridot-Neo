@@ -397,4 +397,4 @@ For further information, support, or contributions, please refer to the [Peridot
 
 ## Disclaimer
 
-This documentation is provided for informational purposes only and does not constitute financial or investment advice. Deploying and interacting with smart contracts involves risks, including the potential loss of funds. Users should conduct their own research and consult with financial professionals before engaging with the Peridot Lend & Borrow Protocol.
+This documentation is provided for informational purposes only and does not constitute financial or investment advice. Deploying and interacting with smart contracts involves risks, including the potential loss of funds. Users should conduct their own research and consult with financial professionals before engaging with the Peridot Lend & Borrow Protocol. The Peridot Lend & Borrow Protocol is based on the Compound Protocol.
