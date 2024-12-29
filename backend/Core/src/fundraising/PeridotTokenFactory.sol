@@ -1,149 +1,156 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import '@openzeppelin/contracts/utils/Create2.sol';
-import '../library/PeridotMiniNFTHelper.sol';
-import '../library/PeridotFFTHelper.sol';
-import '../interface/IPeridotTokenFactory.sol';
-import '../interface/IPeridotSwap.sol';
+import "@openzeppelin/contracts/utils/Create2.sol";
+import "../library/PeridotMiniNFTHelper.sol";
+import "../library/PeridotFFTHelper.sol";
+import "../interface/IPeridotTokenFactory.sol";
+import "../interface/IPeridotSwap.sol";
 
 contract PeridotTokenFactory is IPeridotTokenFactory {
-  address private _owner;
-  address private _PeridotGovernor;
-  address public PeridotSwap;
-  address private _PeridotVault;
-  address private _PeridotPFVault; //poolfundingvault
-  address public pendingVault;
-  address public pendingPFVault;
+    address private _owner;
+    address private _PeridotGovernor;
+    address public PeridotSwap;
+    address private _PeridotVault;
+    address private _PeridotPFVault; //poolfundingvault
+    address public pendingVault;
+    address public pendingPFVault;
 
-  mapping(address => address) public projectToMiniNFT;
-  mapping(address => address) public projectToFFT;
-  
-  event CollectionPairCreated(
+    mapping(address => address) public projectToMiniNFT;
+    mapping(address => address) public projectToFFT;
+
+    event CollectionPairCreated(
         address indexed projectAddress,
         address indexed newMiniNFTContract,
         address indexed newFFTContract
-  );
-
-  constructor(
-    address daoAddress,
-    address swapAddress,
-    address vaultAddress,
-    address PFvaultAddress
-  ) {
-    _owner = msg.sender;
-    _PeridotGovernor = daoAddress;
-    _PeridotVault = vaultAddress;
-    _PeridotPFVault = PFvaultAddress;
-    PeridotSwap = swapAddress;
-
-    pendingVault = _PeridotVault;
-    pendingPFVault = _PeridotPFVault;
-  }
-
-  modifier onlyFactoryOwner() {
-    require(msg.sender == _owner, 'Peridot: invalid caller');
-    _;
-  }
-
-  modifier onlyDao() {
-    require(msg.sender == _PeridotGovernor, 'Peridot: caller is not dao');
-    _;
-  }
-
-  function createCollectionPair(
-    address projectAddress,
-    bytes32 salt,
-    string memory miniNFTBaseUri,
-    string memory name,
-    string memory symbol
-  ) external onlyFactoryOwner returns (address, address) {
-    require(
-      projectToMiniNFT[projectAddress] == address(0) &&
-        projectToFFT[projectAddress] == address(0),
-      'Already exist.'
     );
 
-    address newMiniNFTContract = Create2.deploy(
-      0,
-      salt,
-      PeridotMiniNFTHelper.getBytecode(miniNFTBaseUri)
-    );
+    constructor(
+        address daoAddress,
+        address swapAddress,
+        address vaultAddress,
+        address PFvaultAddress
+    ) {
+        _owner = msg.sender;
+        _PeridotGovernor = daoAddress;
+        _PeridotVault = vaultAddress;
+        _PeridotPFVault = PFvaultAddress;
+        PeridotSwap = swapAddress;
 
-    require(newMiniNFTContract != address(0), 'Peridot: deploy MiniNFT Failed');
+        pendingVault = _PeridotVault;
+        pendingPFVault = _PeridotPFVault;
+    }
 
-    address newFFTContract = Create2.deploy(
-      0,
-      salt,
-      PeridotFFTHelper.getBytecode(name, symbol)
-    );
+    modifier onlyFactoryOwner() {
+        require(msg.sender == _owner, "Peridot: invalid caller");
+        _;
+    }
 
-    require(newFFTContract != address(0), 'Peridot: deploy FFT Failed');
+    modifier onlyDao() {
+        require(msg.sender == _PeridotGovernor, "Peridot: caller is not dao");
+        _;
+    }
 
-    projectToMiniNFT[projectAddress] = newMiniNFTContract;
-    projectToFFT[projectAddress] = newFFTContract;
+    function createCollectionPair(
+        address projectAddress,
+        bytes32 salt,
+        string memory miniNFTBaseUri,
+        string memory name,
+        string memory symbol
+    ) external onlyFactoryOwner returns (address, address) {
+        require(
+            projectToMiniNFT[projectAddress] == address(0) &&
+                projectToFFT[projectAddress] == address(0),
+            "Already exist."
+        );
 
-    require(
-      IPeridotSwap(PeridotSwap).updatePoolRelation(
-        newMiniNFTContract,
-        newFFTContract,
-        projectAddress
-      )
-    );
+        address newMiniNFTContract = Create2.deploy(
+            0,
+            salt,
+            PeridotMiniNFTHelper.getBytecode(miniNFTBaseUri)
+        );
 
-    emit CollectionPairCreated(projectAddress, newMiniNFTContract, newFFTContract);
+        require(
+            newMiniNFTContract != address(0),
+            "Peridot: deploy MiniNFT Failed"
+        );
 
-    return (newMiniNFTContract, newFFTContract);
-  }
+        address newFFTContract = Create2.deploy(
+            0,
+            salt,
+            PeridotFFTHelper.getBytecode(name, symbol)
+        );
 
-  function updateDao(address daoAddress) external onlyDao returns (bool) {
-    _PeridotGovernor = daoAddress;
-    return true;
-  }
+        require(newFFTContract != address(0), "Peridot: deploy FFT Failed");
 
-  function signDaoReq() external onlyFactoryOwner returns (bool) {
-    _PeridotVault = pendingVault;
-    _PeridotPFVault = pendingPFVault;
+        projectToMiniNFT[projectAddress] = newMiniNFTContract;
+        projectToFFT[projectAddress] = newFFTContract;
 
-    return true;
-  }
+        require(
+            IPeridotSwap(PeridotSwap).updatePoolRelation(
+                newMiniNFTContract,
+                newFFTContract,
+                projectAddress
+            )
+        );
 
-  function updateVault(address pendingVault_) external onlyDao returns (bool) {
-    pendingVault = pendingVault_;
-    return true;
-  }
+        emit CollectionPairCreated(
+            projectAddress,
+            newMiniNFTContract,
+            newFFTContract
+        );
 
-  function updatePFVault(address pendingPFVault_)
-    external
-    onlyDao
-    returns (bool)
-  {
-    pendingPFVault = pendingPFVault_;
-    return true;
-  }
+        return (newMiniNFTContract, newFFTContract);
+    }
 
-  function getowner() external view override returns (address) {
-    return _owner;
-  }
+    function updateDao(address daoAddress) external onlyDao returns (bool) {
+        _PeridotGovernor = daoAddress;
+        return true;
+    }
 
-  function getDAOAddress() external view override returns (address) {
-    return _PeridotGovernor;
-  }
+    function signDaoReq() external onlyFactoryOwner returns (bool) {
+        _PeridotVault = pendingVault;
+        _PeridotPFVault = pendingPFVault;
 
-  function getSwapAddress() external view override returns (address) {
-    return PeridotSwap;
-  }
+        return true;
+    }
 
-  function getVaultAddress() external view override returns (address) {
-    return _PeridotVault;
-  }
+    function updateVault(
+        address pendingVault_
+    ) external onlyDao returns (bool) {
+        pendingVault = pendingVault_;
+        return true;
+    }
 
-  function getPoolFundingVaultAddress()
-    external
-    view
-    override
-    returns (address)
-  {
-    return _PeridotPFVault;
-  }
+    function updatePFVault(
+        address pendingPFVault_
+    ) external onlyDao returns (bool) {
+        pendingPFVault = pendingPFVault_;
+        return true;
+    }
+
+    function getowner() external view override returns (address) {
+        return _owner;
+    }
+
+    function getDAOAddress() external view override returns (address) {
+        return _PeridotGovernor;
+    }
+
+    function getSwapAddress() external view override returns (address) {
+        return PeridotSwap;
+    }
+
+    function getVaultAddress() external view override returns (address) {
+        return _PeridotVault;
+    }
+
+    function getPoolFundingVaultAddress()
+        external
+        view
+        override
+        returns (address)
+    {
+        return _PeridotPFVault;
+    }
 }
