@@ -1,67 +1,66 @@
 import { getChain } from "./chains.js";
-import { isTestnetPath } from "../lib/helper.js";
+import { getChainFilteredSet } from "../lib/helper.js";
 
 const basePath = "/images/tokens/";
 
 const tokens = {
-  NEOX: [
-    {
-      symbol: "FFT",
-      contract: "0x2F09A68A5Ba0Ea74D6140fCFB9cfFF64C982794e",
-      decimals: 18,
-      coingeckoId: "binance-usd",
-      imagePath: basePath + "placeholder.svg",
-    },
-    {
-      symbol: "ETH",
-      decimals: 18,
-      coingeckoId: "ethereum",
-      imagePath: basePath + "ETH.svg",
-    },
-  ],
-  BASE: [
-    {
-      symbol: "ETH",
-      decimals: 18,
-      coingeckoId: "ethereum",
-      imagePath: basePath + "ETH.svg",
-    },
-  ],
+	MAINNET: [
+		{
+			symbol: "FFT",
+			contract: "0x38dd5d8EbE6061A3242701e3897EFe9A545F0A29",
+			decimals: 18,
+			coingeckoId: undefined,
+			imagePath: basePath + "placeholder.svg"
+		},
+		{
+			symbol: "GAS",
+			decimals: 18,
+			coingeckoId: undefined,
+			imagePath: basePath + "GAS.png"
+		}
+	],
+	TESTNET: [
+		{
+			symbol: "FFT",
+			contract: "0x002e17a2B77f7cF5FA19722658C685c12156d495",
+			decimals: 18,
+			coingeckoId: undefined,
+			imagePath: basePath + "placeholder.svg"
+		},
+		{
+			symbol: "GAS",
+			decimals: 18,
+			coingeckoId: undefined,
+			imagePath: basePath + "GAS.png"
+		}
+	],
 };
 
 // ---- GET ALL TOKENS ----
 
 export function getAllTokens() {
-  let allTokens = [];
-  let currentTokens = tokens;
+	let allTokens = [];
+	let currentTokens = getChainFilteredSet(tokens);
 
-  if (!isTestnetPath()) {
-    delete currentTokens.NEOX;
-  }
+	for (const [chainName, tokens] of Object.entries(currentTokens)) {
+		let chain = getChain(chainName);
 
-  for (const [chainName, tokens] of Object.entries(currentTokens)) {
-    let chain = getChain(chainName);
+		let newTokens = tokens.map(token => {
+			return {...token, chain: chain};
+		});
 
-    let newTokens = tokens.map((token) => {
-      return { ...token, chain: chain };
-    });
+		allTokens = [...allTokens, ...Object.values(newTokens)];
+	}
 
-    allTokens = [...allTokens, ...Object.values(newTokens)];
-  }
-
-  return allTokens;
+	return allTokens;
 }
 
 // ---- GET SPECIFIC TOKEN ----
 
 export function getToken(chain, symbol) {
-  return getAllTokens().find(
-    (token) => token.chain.nameId === chain && token.symbol === symbol
-  );
+	return getAllTokens().find(token => token.chain.nameId === chain && token.symbol === symbol);
 }
 
 export function getTokenByContract(chain, contract) {
-  return getAllTokens().find(
-    (token) => token.chain.nameId === chain && token.contract === contract
-  );
+	return getAllTokens().find(token => token.chain.nameId === chain && token.contract === contract);
 }

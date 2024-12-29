@@ -9,136 +9,107 @@ import Logo from "../../common/others/Logo.js";
 import ChainDropdown from "./ChainDropdown.js";
 import ConnectButton from "./ConnectButton.js";
 import MenuButton from "./MenuButton.js";
+import ProviderModal from "./ProviderModal.js";
 import { conc, cond, getCssVariablePixel } from "../../../lib/wrapper/html.js";
 
 export default function Header() {
-  const mobileBreakpoint = getCssVariablePixel("--mobile-breakpoint-very-big");
+	const mobileBreakpoint = getCssVariablePixel("--mobile-breakpoint-big");
 
-  const location = useLocation();
+	const location = useLocation();
 
-  const windowWidth = useContext(WindowWidthContext);
+	const windowWidth = useContext(WindowWidthContext);
 
-  const [isChecked, setIsChecked] = useState(false);
+	const [isChecked, setIsChecked] = useState(false);
+	const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // ---- HOOKS ----
+	// ---- HOOKS ----
 
-  useEffect(() => {
-    resetBackground();
-  }, [location]);
+	useEffect(() => {
+		resetModal();
+	}, [location]);
 
-  useEffect(() => {
-    if (isChecked === true && windowWidth > mobileBreakpoint) {
-      setIsChecked(false);
-    }
-  }, [windowWidth]);
+	useEffect(() => {
+		if (isChecked === true && windowWidth > mobileBreakpoint) {
+			setIsChecked(false);
+		}
+	}, [windowWidth]);
 
-  // ---- FUNCTIONS ----
+	useEffect(() => {
+		if (isChecked === false) {
+			setIsModalOpen(false);
+		}
+	}, [isChecked]);
 
-  function resetBackground() {
-    setIsChecked(false);
-  }
+	// ---- FUNCTIONS ----
 
-  return windowWidth > mobileBreakpoint ? (
-    <header className={conc(styles.header, styles.header_desktop)}>
-      <div className={styles.logo_container}>
-        <Logo />
-      </div>
+	function resetModal() {
+		setIsChecked(false);
+		setIsModalOpen(false);
+	}
 
-      <nav className={styles.nav_desktop}>
-        <InternalLink
-          link={"/peridot-swap"}
-          otherClasses={conc(styles.link, styles.link_desktop)}
-          activeClasses={styles.link_active}
-          onClick={resetBackground}
-        >
-          Peridot-Swap
-        </InternalLink>
-        <InternalLink
-          link={"/ifo"}
-          otherClasses={conc(styles.link, styles.link_desktop)}
-          activeClasses={styles.link_active}
-          onClick={resetBackground}
-        >
-          IFO
-        </InternalLink>
-        <InternalLink
-          link={"/inventory"}
-          otherClasses={conc(styles.link, styles.link_desktop)}
-          activeClasses={styles.link_active}
-          onClick={resetBackground}
-        >
-          Inventory
-        </InternalLink>
-        <ExternalLink
-          link={"https://neoxwish.ngd.network/"}
-          otherClasses={conc(styles.link, styles.link_desktop)}
-          onClick={resetBackground}
-        >
-          Faucet
-        </ExternalLink>
-      </nav>
+	// ---- FUNCTIONS (CLICK HANDLERS) ----
 
-      <div className={styles.function_container}>
-        <ConnectButton />
-        <ChainDropdown />
-      </div>
-    </header>
-  ) : (
-    <header className={conc(styles.header, styles.header_mobile)}>
-      <Background isActive={isChecked} onClick={() => resetBackground()} />
+	function handleConnectWalletButton() {
+		setIsModalOpen(true);
+	}
 
-      <Logo />
+	return (
+		windowWidth > mobileBreakpoint
+		?
+			<header className={conc(styles.header, styles.header_desktop)}>
+				<Background isActive={isModalOpen} onClick={() => setIsModalOpen(false)}/>
 
-      <MenuButton getter={isChecked} setter={setIsChecked} />
+				<div className={styles.logo_container}>
+					<Logo/>
+				</div>
 
-      <nav
-        className={conc(
-          styles.nav_mobile,
-          cond(isChecked, styles.nav_mobile_visible)
-        )}
-      >
-        <InternalLink
-          link={"/peridot-swap"}
-          otherClasses={conc(styles.link, styles.link_mobile)}
-          activeClasses={styles.link_active}
-          onClick={resetBackground}
-        >
-          Peridot-Swap
-        </InternalLink>
-        <InternalLink
-          link={"/ifo"}
-          otherClasses={conc(styles.link, styles.link_mobile)}
-          activeClasses={styles.link_active}
-          onClick={resetBackground}
-        >
-          IFO
-        </InternalLink>
-        <InternalLink
-          link={"/inventory"}
-          otherClasses={conc(styles.link, styles.link_mobile)}
-          activeClasses={styles.link_active}
-          onClick={resetBackground}
-        >
-          Inventory
-        </InternalLink>
+				<nav className={styles.nav_desktop}>
+					<InternalLink link={"/peridot-swap"} otherClasses={conc(styles.link, styles.link_desktop)} activeClasses={styles.link_active} onClick={resetModal}>Peridot-Swap</InternalLink>
+					<InternalLink link={"/ifo"} otherClasses={conc(styles.link, styles.link_desktop)} activeClasses={styles.link_active} onClick={resetModal}>IFO</InternalLink>
+					<InternalLink link={"/inventory"} otherClasses={conc(styles.link, styles.link_desktop)} activeClasses={styles.link_active} onClick={resetModal}>Inventory</InternalLink>
+					<ExternalLink link={"https://neoxwish.ngd.network"} otherClasses={conc(styles.link, styles.link_desktop)} onClick={resetModal}>Faucet</ExternalLink>
+				</nav>
 
-        <hr />
+				<div className={styles.function_container}>
+					<ConnectButton onClick={handleConnectWalletButton}/>
+					<ChainDropdown/>
+				</div>
 
-        <ExternalLink
-          link={"https://faucets.chain.link/NEOXitrum-sepolia"}
-          otherClasses={conc(styles.link, styles.link_mobile)}
-          onClick={resetBackground}
-        >
-          Faucet
-        </ExternalLink>
+				{
+					isModalOpen &&
+					<ProviderModal closeModal={() => resetModal()}/>
+				}
+			</header>
+		:
+			<header className={conc(styles.header, styles.header_mobile)}>
+				<Background isActive={isChecked || isModalOpen} onClick={() => resetModal()}/>
+				
+				<Logo/>
 
-        <hr />
+				<MenuButton getter={isChecked} setter={setIsChecked}/>
 
-        <div className={styles.function_container}>
-          <ConnectButton />
-          <ChainDropdown />
-        </div>
-      </nav>
-    </header>
-  );
+				{
+					isModalOpen && isChecked
+					?
+						<ProviderModal closeModal={() => resetModal()}/>
+					:
+						<nav className={conc(styles.nav_mobile, cond(isChecked, styles.nav_mobile_visible))}>
+							<InternalLink link={"/peridot-swap"} otherClasses={conc(styles.link, styles.link_mobile)} activeClasses={styles.link_active} onClick={resetModal}>Peridot-Swap</InternalLink>
+							<InternalLink link={"/ifo"} otherClasses={conc(styles.link, styles.link_mobile)} activeClasses={styles.link_active} onClick={resetModal}>IFO</InternalLink>
+							<InternalLink link={"/inventory"} otherClasses={conc(styles.link, styles.link_mobile)} activeClasses={styles.link_active} onClick={resetModal}>Inventory</InternalLink>
+							
+							<hr/>
+
+							<ExternalLink link={"https://neoxwish.ngd.network"} otherClasses={conc(styles.link, styles.link_mobile)} onClick={resetModal}>Faucet</ExternalLink>
+
+							<hr/>
+
+							<div className={styles.function_container}>
+								<ConnectButton onClick={handleConnectWalletButton}/>
+								<ChainDropdown/>
+							</div>
+						</nav>
+				}
+			</header>
+	);
 }

@@ -1,0 +1,36 @@
+# ---- CONFIG ----
+
+variables:
+  GIT_CLEAN_FLAGS: -f
+
+stages:
+  - install
+  - deploy
+
+# ---- INSTALL ----
+
+yarn-prod:
+  stage: install
+  script:
+    - rsync -a $(pwd)/ /var/www/website-main
+    - cd /var/www/website-main
+    - nvm use 20
+    - yarn install
+    - yarn build
+  only:
+    - main
+  tags:
+    - peridot-web
+
+# ---- DEPLOY ----
+
+deploy-prod:
+  stage: deploy
+  script:
+    - cd /var/www/website-main
+    - rsync -a --delete build/ nginx_build/
+    - sudo service nginx restart
+  only:
+    - main
+  tags:
+    - peridot-web

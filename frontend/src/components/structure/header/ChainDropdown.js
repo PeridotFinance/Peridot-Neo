@@ -41,7 +41,7 @@ export default function ChainDropdown() {
 
 	function handleSwitchChainButton(chain) {
 		if (isConnected === true) {
-			switchChain(chain).catch(() => {});
+			switchChain(chain);
 		}
 	}
 
@@ -56,7 +56,7 @@ export default function ChainDropdown() {
 
 			return (
 				<button key={index} className={conc(styles.chain_button, styles.chain_image_container)} onClick={() => handleSwitchChainButton(chain)} disabled={isDisabled} title={title}>
-					<img className={styles.chain_image} src={"/images/chains/" + chain.nameId + ".svg"} alt={(chain.name + " (" + chain.nameId + ") chain for " + projectName)}/>
+					<img className={styles.chain_image} src={"/images/chains/" + chain.nameId + ".png"} alt={(chain.name + " (" + chain.nameId + ") chain for " + projectName)}/>
 					<span>{chain.nameId}</span>
 				</button>
 			);
@@ -74,7 +74,7 @@ export default function ChainDropdown() {
 						<div className={styles.chain_image_container}>
 							{
 								isChainImage === true &&
-								<img className={styles.chain_image} src={"/images/chains/" + chainName + ".svg"} alt={chainName + " chain for " + projectName} onError={() => setIsChainImage(false)}/>
+								<img className={styles.chain_image} src={"/images/chains/" + chainName + ".png"} alt={chainName + " chain for " + projectName} onError={() => setIsChainImage(false)}/>
 							}
 							<span>{chainName}</span>
 						</div>

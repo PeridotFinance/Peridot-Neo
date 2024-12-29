@@ -6,11 +6,19 @@ export function isSameDay(date1, date2) {
 	return isSameYear && isSameMonth && isSameDay;
 }
 
-export function isTestnetPath() {
+export function getChainFilteredSet(set) {
 	let currentPath = window.location.href;
-	let isTestnetPath = currentPath.includes("localhost") || true; //TODO: remove || true
+	let newSet = set;
 
-	return isTestnetPath;
+	if (!currentPath.includes("localhost")) {
+		if (currentPath.includes("testnet.peridot.finance")) {
+			delete newSet.MAINNET;
+		} else if (currentPath.includes("peridot.finance")) {
+			delete newSet.TESTNET;
+		}
+	}
+
+	return newSet;
 }
 
 export function isDefined(...params) {
@@ -21,7 +29,7 @@ export function getDollarFormat(value) {
 	let format = undefined;
 
 	if (value !== undefined) {
-		format = "$" + parseFloat(value).toFixed(2)
+		format = "$" + parseFloat(value).toFixed(2);
 	}
 
 	return format;

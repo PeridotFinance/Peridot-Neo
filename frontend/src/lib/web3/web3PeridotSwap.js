@@ -5,8 +5,8 @@ import { contracts } from "../../data/contracts.js";
 
 import fractionTokenAbi from "../../data/abis/fractionToken.json";
 import miniNftAbi from "../../data/abis/miniNft.json";
-import swapAbi from "../../data/abis/swap.json";
-import witnetAbi from "../../data/abis/witnet.json";
+import swapMainnetAbi from "../../data/abis/swapMainnet.json";
+import swapTestnetAbi from "../../data/abis/swapTestnet.json";
 
 // ---- GETTER ----
 
@@ -57,26 +57,22 @@ export async function approveNft(miniNftContract, swapAddress) {
 export async function swapMiniNftToNft(nftAddress, miniNftAddress) {
 	let chain = await getChainName();
 
+	let swapAbi = (chain === "TESTNET") ? swapTestnetAbi : swapMainnetAbi;
+
 	let miniNftContract = new web3Provider.Contract(miniNftAbi, miniNftAddress);
 	let swapContract = new web3Provider.Contract(swapAbi, contracts[chain].swap);
-	let witnetContract = new web3Provider.Contract(witnetAbi, contracts[chain].witnet);
 
 	return approveNft(miniNftContract, contracts[chain].swap).then(async () => {
-		let witnetGas = await witnetContract.methods.GET_WITNET_GAS().call(); // TODO
-		let increasedGas = witnetGas * 1.1;
+		let extraMessage = (chain === "TESTNET") ? { value: "0" } : {};
 
-		let extraMessage = {
-			value: increasedGas
-		};
-
-		return witnetContract.methods.LONG_WITNET_CALL(nftAddress).send(getSendMessage()).then(() => { // TODO
-			return swapContract.methods.swapMiniNFTtoNFT(nftAddress).send(getSendMessage(extraMessage));
-		});
+		return swapContract.methods.swapMiniNFTtoNFT(nftAddress).send(getSendMessage(extraMessage));
 	});
 }
 
 export async function swapMiniNftToToken(miniNftAddress, inputAmount) {
 	let chain = await getChainName();
+
+	let swapAbi = (chain === "TESTNET") ? swapTestnetAbi : swapMainnetAbi;
 
 	let miniNftContract = new web3Provider.Contract(miniNftAbi, miniNftAddress);
 	let swapContract = new web3Provider.Contract(swapAbi, contracts[chain].swap);
@@ -90,6 +86,8 @@ export async function swapMiniNftToToken(miniNftAddress, inputAmount) {
 
 export async function swapTokenToMiniNft(tokenAddress, miniNftAddress, inputAmount, outputAmount) {
 	let chain = await getChainName();
+
+	let swapAbi = (chain === "TESTNET") ? swapTestnetAbi : swapMainnetAbi;
 
 	let tokenContract = new web3Provider.Contract(fractionTokenAbi, tokenAddress);
 	let swapContract = new web3Provider.Contract(swapAbi, contracts[chain].swap);
