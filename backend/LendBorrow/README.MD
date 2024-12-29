@@ -10,7 +10,7 @@ Welcome to the Peridot Lend & Borrow Protocol Documentation! This document provi
   - [Peridotroller](#peridotroller)
   - [InterestRateModel](#interestratemodel)
   - [ErrorReporter](#errorreporter)
-  - [SimplePriceOracle](#simplepriceoracle)
+  - [SupraPriceOracle](#suprapriceoracle)
 - [Supporting Libraries and Interfaces](#supporting-libraries-and-interfaces)
 - [Key Functionalities](#key-functionalities)
   - [Minting](#minting)
@@ -143,11 +143,11 @@ The `ErrorReporter` contract standardizes error handling across the protocol. By
 
 ---
 
-### SimplePriceOracle
+### SupraPriceOracle
 
 **File Path:** `LendBorrow/contracts/Flattened.sol`
 
-The `SimplePriceOracle` provides asset price data to the `Peridotroller`. It allows manual setting of asset prices, ensuring that the protocol has up-to-date and accurate information for risk assessments.
+The `SupraPriceOracle` provides asset price data to the `Peridotroller`. It allows manual setting of asset prices, ensuring that the protocol has up-to-date and accurate information for risk assessments. It uses the Supra Pull Oracle. For more information on the Supra Oracles please visit the respective Documentation.
 
 **Key Features:**
 
